@@ -58,7 +58,17 @@ See `data/README.md` for more details on obtaining these files.
 
 ### 3. Configure API Key
 
-Set your Google Gemini API key as an environment variable:
+Create a `.env` file from the example template:
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and add your Google Gemini API key:
+```
+GEMINI_API_KEY=your-api-key-here
+```
+
+Alternatively, you can set it as an environment variable:
 ```bash
 export GEMINI_API_KEY="your-api-key-here"
 ```
@@ -67,7 +77,20 @@ Or pass it directly in your code (see examples).
 
 ## Usage
 
-### Basic Example
+### Running the Example Script
+
+To run the included example script:
+```bash
+uv run --env-file .env -- examples/generate_flashcards.py
+```
+
+This will:
+1. Load environment variables from `.env`
+2. Parse the example NAQT article
+3. Generate flashcards using the LLM
+4. Export to CSV for Anki import
+
+### Basic Example (Python Code)
 
 ```python
 import pandas as pd

@@ -2,12 +2,16 @@
 
 __version__ = "0.1.0"
 
+from anki_qb.config import Config, get_config, set_config
 from anki_qb.parsing import parse_ygk_page, parse_ygk_page_dl, parse_ygk_page_ul, ygk_path
 from anki_qb.search import search_bonuses, search_tossups
 from anki_qb.formatters import format_qa, format_ygk_prompt, format_ygk_prompts, read_markdown
-from anki_qb.llm import ask_llm, sanitize_term, get_qbr_data
+from anki_qb.llm import ask_llm, sanitize_term, get_qbr_data, initialize_client
 
 __all__ = [
+    "Config",
+    "get_config",
+    "set_config",
     "parse_ygk_page",
     "parse_ygk_page_dl",
     "parse_ygk_page_ul",
@@ -21,4 +25,5 @@ __all__ = [
     "ask_llm",
     "sanitize_term",
     "get_qbr_data",
+    "initialize_client",
 ]
