@@ -1,7 +1,7 @@
 """Parsing functions for NAQT 'You Gotta Know' articles."""
 
 import lxml.html
-from more_itertools import first, one
+from more_itertools import first
 
 from anki_qb.text_utils import normalize_text
 
@@ -34,7 +34,7 @@ def read_html(path: str) -> lxml.html.HtmlElement:
     Returns:
         Parsed HTML element tree
     """
-    with open(path, "r") as f:
+    with open(ygk_path(path), "r") as f:
         text = f.read()
     return lxml.html.fromstring(text)
 
@@ -57,7 +57,7 @@ def parse_ygk_page_ul(path: str) -> list[dict[str, str]]:
     for li in tree.xpath("//ul[@class='ygk']/li"):
         ret.append({
             "article": article,
-            "label": normalize_text(one(li.xpath("./span[@class='label']")).text),
+            "label": " / ".join([normalize_text(span.text) for span in li.xpath("./span[@class='label']")]),
             "terms": [normalize_text(t.text) for t in li.xpath("./span[@class='ygk-term']")],
             "html": normalize_text(lxml.html.tostring(li).decode("ascii").strip()),
             "text": normalize_text(li.text_content())

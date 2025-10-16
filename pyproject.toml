@@ -8,7 +8,9 @@ dependencies = [
     "pandas>=2.0.0",
     "lxml>=5.0.0",
     "more-itertools>=10.0.0",
-    "google-genai>=1.0.0",
+    "llm>=0.15.0",
+    "llm-gemini>=0.1",
+    "rich>=13.0.0",
 ]
 authors = [
     {name = "Adil"}
@@ -27,3 +29,9 @@ build-backend = "hatchling.build"
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[dependency-groups]
+dev = [
+    "ipdb>=0.13.13",
+    "ipython>=8.37.0",
+]

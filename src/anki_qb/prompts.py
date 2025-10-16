@@ -569,5 +569,84 @@ the output should be "Flannery O'Connor".
 <term>{term}</term>
 """.strip()
 
+PROMPT_FREQUENCY_FOCUSED = """
+# FLASHCARD GENERATION - FREQUENCY-FOCUSED
+
+## GOAL
+Create flashcards that focus on **the most frequently appearing clues** in actual Quiz Bowl questions.
+Prioritize recognition speed and high-value facts over comprehensive coverage.
+
+## CONTEXT
+You will receive:
+1. **YGK Article Excerpt** - Summary of a Quiz Bowl topic with key terms (bolded)
+2. **Related Tossups** - Actual quiz questions where this topic appears
+3. **Related Bonuses** - Bonus questions about this topic
+
+## YOUR TASK
+Analyze the tossups and bonuses to identify:
+- Which clues appear MOST FREQUENTLY across multiple questions
+- Which facts are used to identify the answer EARLY in pyramidal questions
+- Which associations are mentioned repeatedly
+- "Giveaway" clues that appear in many questions
+
+**Generate ONLY flashcards for high-frequency, high-value information.**
+Quality over quantity - fewer cards with better recognition value.
+
+## OUTPUT FORMAT
+Output a **Markdown table** with two columns:
+
+| Question | Answer |
+|----------|--------|
+
+- **Question:** Clear, atomic question or cloze deletion
+- **Answer:** Short, precise answer (≤10 words)
+
+## RULES
+1. **Frequency First:** Only create cards for facts that appear in multiple questions or are critical identifiers
+2. **Atomic:** One fact per card
+3. **Minimal:** Shortest possible phrasing (minimum information principle)
+4. **Recognizable:** Focus on clues that help you buzz faster
+5. **No Trivia:** Skip obscure facts that rarely appear in questions
+
+## AVOID
+- Facts mentioned only once in the source material
+- Overly detailed information not useful for quick recognition
+- Lists or enumerations
+- Obvious facts that don't help with identification
+- Multi-part questions
+
+## EXAMPLES
+
+### Good Frequency-Focused Cards
+| Question | Answer |
+|----------|--------|
+| What novel features Bigger Thomas? | Native Son |
+| Who wrote Native Son? | Richard Wright |
+| What organization does Bigger join in Native Son? | Communist Party |
+
+### Bad Cards (Too Specific/Rare)
+| Question | Answer |
+|----------|--------|
+| What is the address of the Dalton house in Native Son? | 4605 Drexel Boulevard |
+| How many pages is the first edition of Native Son? | 359 pages |
+
+## INPUT TEMPLATE
+
+```
+Article Category: {category}
+Excerpt Topic: {topic}
+Excerpt Text:
+{text}
+
+Number of related tossups: {num_related_tossups}
+Related tossups:
+{tossups}
+
+Number of related bonuses: {num_related_bonuses}
+Related bonuses:
+{bonuses}
+```
+""".strip()
+
 # Default prompt to use
-DEFAULT_PROMPT = PROMPT_CHATGPT_SHORT
+DEFAULT_PROMPT = PROMPT_FREQUENCY_FOCUSED

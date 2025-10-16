@@ -3,7 +3,7 @@
 import re
 import pandas as pd
 
-from anki_qb.parsing import parse_ygk_page_dl
+from anki_qb.parsing import parse_ygk_page
 
 
 def format_qa(df: pd.DataFrame) -> list[str]:
@@ -86,9 +86,9 @@ def format_ygk_prompt(data: dict[str, str], prompt_template: str, qbr_data: dict
     )
 
 
-def format_ygk_prompts(path: str, prompt_template: str, get_qbr_data_fn) -> list[str]:
+def format_ygk_prompts(path: str, prompt_template: str, get_qbr_data_fn) -> list[tuple[str, dict]]:
     """
-    Parse a YGK page and format all topics into prompts.
+    Parse a YGK page and format all topics into prompts with metadata.
 
     Args:
         path: Path to the HTML file or category name
@@ -96,12 +96,19 @@ def format_ygk_prompts(path: str, prompt_template: str, get_qbr_data_fn) -> list
         get_qbr_data_fn: Function to get QBReader data for a given YGK data dict
 
     Returns:
-        List of formatted prompt strings
+        List of (prompt, metadata) tuples where metadata contains:
+        - label: Original topic label from YGK article
+        - sanitized_term: The search term used to find related questions
     """
     ret = []
-    for data in parse_ygk_page_dl(path):
+    for data in parse_ygk_page(path):
         qbr_data = get_qbr_data_fn(data)
-        ret.append(format_ygk_prompt(data, prompt_template, qbr_data))
+        prompt = format_ygk_prompt(data, prompt_template, qbr_data)
+        metadata = {
+            "label": data["label"],
+            "sanitized_term": qbr_data.get("sanitized_term", data["label"])
+        }
+        ret.append((prompt, metadata))
     return ret
 
 

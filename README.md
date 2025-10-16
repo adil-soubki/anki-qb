@@ -28,7 +28,6 @@ anki-qb/
 │   │   └── tossups.json
 │   └── ygk/               # NAQT "You Gotta Know" HTML files
 │       └── *.html
-├── examples/              # Example usage scripts
 └── tests/                 # Tests
 ```
 
@@ -56,62 +55,83 @@ Place the following files in the `data/` directory:
 
 See `data/README.md` for more details on obtaining these files.
 
-### 3. Configure API Key
+### 3. Configure LLM API Keys
 
-Create a `.env` file from the example template:
+This project uses the [llm](https://llm.datasette.io/) package, which supports multiple LLM providers.
+
+Set up API keys for your preferred provider:
+
 ```bash
-cp .env.example .env
+# For OpenAI (GPT models)
+llm keys set openai
+
+# For Anthropic (Claude models)
+llm keys set anthropic
+
+# For Google (Gemini models)
+llm keys set gemini
+
+# List available models
+llm models
 ```
 
-Then edit `.env` and add your Google Gemini API key:
-```
-GEMINI_API_KEY=your-api-key-here
-```
-
-Alternatively, you can set it as an environment variable:
-```bash
-export GEMINI_API_KEY="your-api-key-here"
-```
-
-Or pass it directly in your code (see examples).
+See the [llm documentation](https://llm.datasette.io/en/stable/setup.html) for more providers and setup details.
 
 ## Usage
 
-### Running the Example Script
+### Generate Flashcards (CLI)
 
-To run the included example script:
+The main way to use this project is via the `bin/generate-flashcards.py` script:
+
 ```bash
-uv run --env-file .env -- examples/generate_flashcards.py
+# List all available categories
+uv run bin/generate-flashcards.py --list-categories
+
+# Generate flashcards for a single category
+uv run bin/generate-flashcards.py --category short_story_authors
+
+# Generate for all categories (this will take a while!)
+uv run bin/generate-flashcards.py --all
+
+# Use a specific model
+uv run bin/generate-flashcards.py --category modern_poets --model claude-3-5-sonnet
+
+# Choose a different prompt style
+uv run bin/generate-flashcards.py --category american_novels --prompt short
+
+# Specify output directory
+uv run bin/generate-flashcards.py --category ancient_philosophers --output my_flashcards/
 ```
 
-This will:
-1. Load environment variables from `.env`
-2. Parse the example NAQT article
-3. Generate flashcards using the LLM
-4. Export to CSV for Anki import
+**Available options:**
+- `--category CATEGORY` - Process a specific YGK category
+- `--all` - Process all available categories
+- `--model MODEL` - LLM model to use (default: gpt-4o-mini)
+- `--prompt {frequency,short,detailed}` - Prompt style (default: frequency)
+- `--output DIR` - Output directory (default: output/)
+- `--list-categories` - List all available categories
+- `-v, --verbose` - Verbose output
 
-### Basic Example (Python Code)
+Output CSV files can be imported directly into Anki.
+
+### Python API Example
 
 ```python
 import pandas as pd
+from functools import partial
 from anki_qb import (
-    initialize_client,
     set_config,
     Config,
-    parse_ygk_page,
     format_ygk_prompts,
     ask_llm,
     read_markdown,
 )
+from anki_qb.llm import get_qbr_data
 from anki_qb.prompts import PROMPT_CHATGPT_SHORT
 
 # 1. Initialize configuration
-config = Config(
-    data_dir="data",
-    gemini_api_key="your-api-key"
-)
+config = Config(data_dir="data")
 set_config(config)
-initialize_client(config.gemini_api_key)
 
 # 2. Load QBReader data
 bonuses = pd.read_json(config.bonuses_path, lines=True)
@@ -122,15 +142,14 @@ category = "short_story_authors"  # Example category
 html_path = config.html_path(category)
 
 # Create a function to get QBR data with loaded dataframes
-from functools import partial
-from anki_qb.llm import get_qbr_data
 get_qbr_data_fn = partial(get_qbr_data, bonuses_df=bonuses, tossups_df=tossups)
 
 # Generate prompts for all topics in the article
-prompts = format_ygk_prompts(str(html_path), PROMPT_CHATGPT_SHORT, get_qbr_data_fn)
+prompts_with_metadata = format_ygk_prompts(str(html_path), PROMPT_CHATGPT_SHORT, get_qbr_data_fn)
 
 # 4. Generate flashcards for first topic
-result = ask_llm(prompts[0])
+prompt, metadata = prompts_with_metadata[0]
+result = ask_llm(prompt)
 
 # 5. Parse markdown table
 flashcards_df = read_markdown(result)
@@ -140,13 +159,16 @@ flashcards_df = flashcards_df.sort_values("Difficulty")
 flashcards_df.to_csv("flashcards.csv", index=False)
 ```
 
-### Available Prompt Templates
+### Available Prompt Styles
 
 The package includes several prompt templates in `anki_qb.prompts`:
 
-- `PROMPT_CHATGPT_SHORT` - Concise, optimized prompt (recommended)
-- `PROMPT_CHATGPT` - Detailed version with examples
-- `PROMPT_ADIL` - Quiz Bowl-specific with difficulty ratings
+- **`frequency`** (Default) - `PROMPT_FREQUENCY_FOCUSED` - Focuses on high-frequency clues that appear most often in actual quiz bowl questions. No difficulty ratings, just Question/Answer pairs. **Recommended for most users.**
+- **`short`** - `PROMPT_CHATGPT_SHORT` - Concise prompt with difficulty ratings (1-5)
+- **`detailed`** - `PROMPT_CHATGPT` - Detailed version with extensive examples and difficulty ratings
+
+Legacy prompts also available:
+- `PROMPT_ADIL` - Original Quiz Bowl-specific prompt with difficulty ratings
 - `PROMPT_FNX_18` - Based on spaced repetition best practices
 - `PROMPT_LM_SHERLOCK` - Simplified approach
 

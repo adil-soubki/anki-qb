@@ -11,23 +11,19 @@ class Config:
     def __init__(
         self,
         data_dir: Optional[str] = None,
-        gemini_api_key: Optional[str] = None,
     ):
         """
         Initialize configuration.
 
         Args:
             data_dir: Directory containing data files (bonuses.json, tossups.json, HTML files)
-            gemini_api_key: Google Gemini API key
+
+        Note:
+            LLM API keys are managed via the `llm` package. Run `llm keys set <provider>`
+            to configure API keys for different providers (openai, anthropic, etc.).
+            Also possible to load them using `uv run --env-file .env`.
         """
         self.data_dir = Path(data_dir or os.getenv("ANKI_QB_DATA_DIR", "data"))
-        self.gemini_api_key = gemini_api_key or os.getenv("GEMINI_API_KEY")
-
-        if not self.gemini_api_key:
-            raise ValueError(
-                "Gemini API key not provided. Set GEMINI_API_KEY environment variable "
-                "or pass gemini_api_key parameter."
-            )
 
     @property
     def bonuses_path(self) -> Path:
