@@ -75,7 +75,7 @@ llm keys set gemini
 llm models
 ```
 
-See the [llm documentation](https://llm.datasette.io/en/stable/setup.html) for more providers and setup details. Another option is to use a `.env` file to store your API and then pass it to scripts with `uv run`.
+See the [llm documentation](https://llm.datasette.io/en/stable/setup.html) for more providers and setup details. Another option is to use a `.env` file to store your API keys and then pass it to scripts with `uv run`.
 
 ```bash
 uv run --env-file .env -- bin/generate-flashcards.py --category [...]
