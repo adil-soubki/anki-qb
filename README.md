@@ -19,9 +19,9 @@ anki-qb/
 │   ├── parsing.py         # HTML parsing for NAQT articles
 │   ├── search.py          # QBReader database search
 │   ├── prompts.py         # LLM prompt templates
-│   ├── llm.py            # LLM interaction (Gemini)
-│   ├── formatters.py     # Data formatting utilities
-│   └── text_utils.py     # Text normalization
+│   ├── llm.py             # LLM interaction (Gemini)
+│   ├── formatters.py      # Data formatting utilities
+│   └── text_utils.py      # Text normalization
 ├── data/                  # Data files (you add these)
 │   ├── qbreader/          # QBReader database
 │   │   ├── bonuses.json
@@ -75,7 +75,11 @@ llm keys set gemini
 llm models
 ```
 
-See the [llm documentation](https://llm.datasette.io/en/stable/setup.html) for more providers and setup details.
+See the [llm documentation](https://llm.datasette.io/en/stable/setup.html) for more providers and setup details. Another option is to use a `.env` file to store your API and then pass it to scripts with `uv run`.
+
+```bash
+uv run --env-file .env -- bin/generate-flashcards.py --category [...]
+```
 
 ## Usage
 
@@ -193,15 +197,23 @@ Generated flashcards include difficulty ratings (1-5) to help prioritize study:
 
 ## Development
 
+### Install Dev Dependencies
+
+Development tools (pytest, ruff, ipdb, ipython) are in a separate dependency group:
+
+```bash
+uv sync --group dev
+```
+
 ### Running Tests
 ```bash
-uv run pytest
+uv run --group dev pytest
 ```
 
 ### Code Formatting
 ```bash
-uv run ruff check src/
-uv run ruff format src/
+uv run --group dev ruff check src/
+uv run --group dev ruff format src/
 ```
 
 ## Data Sources
